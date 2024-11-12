@@ -10,18 +10,19 @@ internal class ViewBase
           else
                return 0;
      }
-     protected string GetValidInput(bool toLover = false)
+     protected string GetValidInput(bool toLover = false, string? message = null)
      {
+        if (message != null)
+            Console.WriteLine(message);
           while (true)
           {
                var input = Console.ReadLine()!;
                var isValidInput = string.IsNullOrWhiteSpace(input) ? false : true;
 
-            if (isValidInput)
-            {
-               return InputProcess(input, toLover);
-            }
-            else Console.WriteLine("Помилка: введено порожній рядок. Рядок має містити хоча б 1 символ! Спробуйте ще раз.");
+            if (isValidInput)          
+               return InputProcess(input, toLover);  
+            
+            else Console.WriteLine("Помилка: введено порожній рядок. Рядок має містити хоча б 1 символ! Спробуйте ще раз.") ;
           }
      }
      private string InputProcess(string input, bool toLover)

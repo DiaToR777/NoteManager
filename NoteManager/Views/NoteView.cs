@@ -4,7 +4,6 @@ using ToDoListV2.Sevices.Note;
 
 namespace ToDoListV2.Views
 {
-
     internal class NoteView : ViewBase
     {
         public NoteManager Manager { get; }
@@ -47,97 +46,88 @@ namespace ToDoListV2.Views
 
         private void EditNoteMain()
         {
-            Console.WriteLine("Редагування нотатки");
-            Console.Write("Введіть новий контент нотатки:");
-
-            string noteContent = GetValidInput();
+            string noteContent = GetValidInput(message: "Редагування нотатки \nВведіть новий контент нотатки:");
 
             Manager.Edit(noteContent);
         }
 
         public void CreateNote()
         {
-            Console.WriteLine("Створення нотатки");
-            Console.Write("Введіть назву нотатки:");
+            string noteTitle = GetValidInput(message: "Створення нотатки \nВведіть назву нотатки:"); //отримуємо корректну назву нотатки
 
-            string noteTitle = GetValidInput(); //отримуємо корректну назву нотатки
             if (!Manager.IsNewNote(noteTitle))
             {
                 Console.WriteLine("Нотатка з такою назвою вже існує");
                 return;
             }
-            Console.Write("Введіть вміст нотатки:");
-            string noteContent = GetValidInput(); //заповняємо вміст
+            string noteContent = GetValidInput(message: "Введіть вміст нотатки: \n"); //заповняємо вміст
 
             Manager.Add(noteTitle, noteContent);
-
-            Console.WriteLine();
         }
 
-        public string DisplayNotesAndGetCommand(List<NoteEntity> notes, int pageSize = 5)
+        public void DisplayNotes(List<NoteEntity> notes, int pageSize = 5)
         {
-            // Якщо нотаток менше або рівно кількості на сторінку, просто виводимо їх всі
-            if (notes.Count <= pageSize) 
-                return DisplayOnePageNotesAndGetCommand(notes); // Повертаємо рядок
-
-            // Логіка пагінації для більше ніж pageSize нотаток
             int currentPage = 1;
             int totalPages = (int)Math.Ceiling((double)notes.Count / pageSize);
+            bool isRunning = true;
 
-            while (true)
+            while (isRunning)
             {
-                Console.Clear(); // Очищуємо екран перед показом нової сторінки
+                Console.Clear();
 
-                // Отримуємо нотатки для поточної сторінки
-                var notesToDisplay = NotesForCurrentPage(notes, currentPage, pageSize);
-
-                //Виводимо
-                for (int i = 0; i < notesToDisplay.Count; i++)
-                {
-                    var note = notesToDisplay[i];
-                    Console.WriteLine($"Нотатка номер {((currentPage - 1) * pageSize) + (i + 1)}\n{note.ToString(false)}\n");
-                }
+                WriteNotesToDisplay(notes, currentPage, pageSize);
 
                 Console.WriteLine($"\nСторінка {currentPage}/{totalPages}");
-                Console.WriteLine("\nc) додати нотатку до категорії\nd) видалити категорію\nb) повернутись в головне меню\nАбо виберіть нотатку\n");
-                Console.WriteLine("← попередня сторінка | → наступна сторінка | Натисніть Enter та введіть індекс нотатки або команду:\n");
+                Console.WriteLine("\n← попередня сторінка | → наступна сторінка | Натисніть 'b' для завершення перегляду.\n");
 
-                var input = Console.ReadKey().Key;
+                var navigationCommand = GetNavigationCommand();
 
-                // Логіка для пагінації
-                if (input == ConsoleKey.LeftArrow && currentPage > 1)
+                switch (navigationCommand)
                 {
-                    currentPage--; // Переходимо на попередню сторінку
-                }
-                else if (input == ConsoleKey.RightArrow && currentPage < totalPages)
-                {
-                    currentPage++; // Переходимо на наступну сторінку
-                }
-                else if (input == ConsoleKey.B)
-                {
-                    return "b"; // Користувач ввів команду виходу
-                }
-                else
-                {
-                    // Якщо користувач ввів не стрілку, пропонуємо ввести команду або індекс нотатки
-                    Console.WriteLine("\nВвід:");
-                    return GetValidInput(true); // Повертаємо введене значення
+                    case "left":
+                        currentPage = currentPage > 1 ? currentPage - 1 : totalPages;
+                        break;
+                    case "right":
+                        currentPage = currentPage < totalPages ? currentPage + 1 : 1;
+                        break;
+                    case "exit":
+                        isRunning = false;
+                        break;
                 }
             }
         }
 
-        private string DisplayOnePageNotesAndGetCommand(List<NoteEntity> notes)
+        private void WriteNotesToDisplay(List<NoteEntity> notes, int currentPage, int pageSize = 5)
         {
+            var notesToDisplay = NotesForCurrentPage(notes, currentPage, pageSize);
+            for (int i = 0; i < notesToDisplay.Count; i++)
+            {
+                var note = notesToDisplay[i];
+                Console.WriteLine($"Нотатка номер {((currentPage - 1) * pageSize) + (i + 1)}\n{note.ToString(false)}\n");
+            }
+        }
 
+        private string GetNavigationCommand()
+        {
+            var input = Console.ReadKey().Key;
+
+            if (input == ConsoleKey.LeftArrow)
+                return "left";
+            else if (input == ConsoleKey.RightArrow)
+                return "right";
+            else if (input == ConsoleKey.B)
+                return "exit"; // Використовується для завершення перегляду нотаток
+
+            return string.Empty; // Повертає порожнє значення для будь-якого іншого введення
+        }
+
+        public void DisplayOnePageNotes(List<NoteEntity> notes)
+        {
             for (int i = 0; i < notes.Count; i++)
             {
                 var note = notes[i];
                 Console.WriteLine($"Нотатка номер {i + 1}\n{note.ToString(false)}\n");
             }
-
-            Console.WriteLine("c) додати нотатку до категорії\nd) видалити категорію\nb) повернутись в головне меню\nАбо виберіть нотатку\n");
-            Console.WriteLine("Введіть команду або виберіть нотатку за індексом:\n");
-            return GetValidInput(true); // Повертаємо рядок
         }
 
         private static List<NoteEntity> NotesForCurrentPage(List<NoteEntity> notes, int currentPage, int pageSize)

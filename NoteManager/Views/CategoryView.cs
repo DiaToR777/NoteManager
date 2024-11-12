@@ -8,7 +8,6 @@ internal class CategoryView : ViewBase
 {
     public CategoryManager _manager { get; }
     private NoteView _noteView { get; }
-        private List<CategoryEntity> _categories;
 
     public CategoryView(CategoryManager manager, NoteView noteView)
     {
@@ -29,8 +28,7 @@ internal class CategoryView : ViewBase
 
     public void CreateCategory()
     {
-        Console.WriteLine("Створення категорії | Введіть назву категорії:");
-        string categoryName = GetValidInput();
+        string categoryName = GetValidInput(message: "Створення категорії | Введіть назву категорії:\n");
 
         if (!_manager.IsNewCategory(categoryName))
         {
@@ -38,7 +36,6 @@ internal class CategoryView : ViewBase
             return;
         }
         _manager.Add(categoryName);
-        Console.WriteLine();
     }
 
     public void HandleCategoryInput(List<CategoryEntity> categories)
@@ -77,15 +74,17 @@ internal class CategoryView : ViewBase
         if (!IsCategoryHaveNotes())
         {
             Console.WriteLine($"Категорія \"{_manager._currentCategory!.Name}\" не містить нотаток ");
-
-            Console.Write("\nc) додати нотатку до категорії\nd) видалити категорію\nb) повернутись в головне меню\n");
-            return GetValidInput(true);
+            return GetValidInput(true, "\nc) додати нотатку до категорії\nd) видалити категорію\nb) повернутись в головне меню\n");
         }
         else
         {
-            
-            string command = _noteView.DisplayNotesAndGetCommand(_manager.GetNotesInCategory());
-            return command;
+            var notes = _manager.GetNotesInCategory();
+            if (notes.Count > 5)
+                _noteView.DisplayNotes(_manager.GetNotesInCategory());
+            else
+                _noteView.DisplayOnePageNotes(notes);
+
+           return GetValidInput(true, "\nc) додати нотатку до категорії\nd) видалити категорію\nb) повернутись в головне меню\nАбо виберіть нотатку\n");
         }
     }
 
