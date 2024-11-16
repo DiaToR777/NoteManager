@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ToDoListV2.Sevices.Category;
+﻿using ToDoListV2.Sevices.Category;
 using ToDoListV2.Sevices.Note;
 using ToDoListV2.Views;
 
@@ -14,17 +9,19 @@ namespace ToDoListV2
           private CategoryManager _categoryManager;
           private NoteManager _noteManager;
 
-          public App() {
+          public App()
+          {
                _categoryManager = new CategoryManager();
                _noteManager = new NoteManager(_categoryManager.AddNoteId, _categoryManager.RemoveNoteId);
                _categoryManager.RemoveNotes += _noteManager.RemoveNotes;
           }
 
-          public void Start() 
+          public void Start()
           {
                var noteView = new NoteView(_noteManager);
                var categoryView = new CategoryView(_categoryManager, noteView);
-               categoryView.Main();
+
+               while (true) categoryView.Main();
           }
 
           public void Dispose()
