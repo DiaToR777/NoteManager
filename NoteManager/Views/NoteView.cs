@@ -58,6 +58,7 @@ namespace ToDoListV2.Views
                if (!Manager.IsNewNote(noteTitle))
                {
                     Console.WriteLine("Нотатка з такою назвою вже існує");
+                    Console.ReadKey();
                     return;
                }
                string noteContent = GetValidInput(message: "Введіть вміст нотатки: \n"); //заповняємо вміст

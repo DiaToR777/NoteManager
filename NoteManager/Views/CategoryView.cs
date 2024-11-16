@@ -31,7 +31,10 @@ internal class CategoryView : ViewBase
           string categoryName = GetValidInput(message: "Створення категорії | Введіть назву категорії:\n");
 
           if (!_manager.IsNewCategory(categoryName))
+          {
                Console.WriteLine("Категорія з такою назвою вже існує");
+               Console.ReadKey();
+          }
           else
                _manager.Add(categoryName);
      }
@@ -57,7 +60,10 @@ internal class CategoryView : ViewBase
                     }
                }
                else
+               {
                     Console.WriteLine("Не вірнний ввід");
+                    Console.ReadKey();
+               }
           }
      }
 
