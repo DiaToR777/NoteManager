@@ -97,7 +97,7 @@ public class CategoryManager
     }
     public List<CategoryEntity>? GetAllCategories()
     {
-        List<CategoryEntity> categories = new List<CategoryEntity>();
+        List<CategoryEntity> categories = new();
 
         if (Categories.Count != 0)
         {

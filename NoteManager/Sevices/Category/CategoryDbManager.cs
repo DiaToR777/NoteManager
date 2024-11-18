@@ -12,85 +12,75 @@ public class CategoryDbManager
 
     public void Add(CategoryEntity category)
     {
-        using (var dbContext = new CategoryesDbContext(_path))
+        using var dbContext = new CategoryesDbContext(_path);
+        try
         {
-            try
-            {
-                var categoryDTO = CategoryEntityDTO.ToDTO(category);
-                dbContext.Add(categoryDTO);
-                dbContext.SaveChanges();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Помилка додавання категорії {category.Name} до бази даних {_path}. \n\r {ex.Message}");
-            }
+            var categoryDTO = CategoryEntityDTO.ToDTO(category);
+            dbContext.Add(categoryDTO);
+            dbContext.SaveChanges();
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Помилка додавання категорії {category.Name} до бази даних {_path}. \n\r {ex.Message}");
         }
     }
     public void AddNoteId(Guid noteId, CategoryEntity category)
     {
-        using (var dbContext = new CategoryesDbContext(_path))
+        using var dbContext = new CategoryesDbContext(_path);
+        try
         {
-            try
-            {
-                var categoryDTO = CategoryEntityDTO.ToDTO(category);
-                var changedCategoryDTO = AddNoteIdToCategory(categoryDTO, noteId.ToString());
-                dbContext.Update(changedCategoryDTO);
-                dbContext.SaveChanges();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Помилка додавання індитифікатора {category.NoteIds} до категорії {category.Name} \n\r {ex.Message}");
-            }
+            var categoryDTO = CategoryEntityDTO.ToDTO(category);
+            var changedCategoryDTO = AddNoteIdToCategory(categoryDTO, noteId.ToString());
+            dbContext.Update(changedCategoryDTO);
+            dbContext.SaveChanges();
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Помилка додавання індитифікатора {category.NoteIds} до категорії {category.Name} \n\r {ex.Message}");
         }
     }
 
     public void Remove(CategoryEntity category)
     {
-        using (var dbContext = new CategoryesDbContext(_path))
+        using var dbContext = new CategoryesDbContext(_path);
+        try
         {
-            try
-            {
-                var categoryDTO = CategoryEntityDTO.ToDTO(category);
-                dbContext.Remove(categoryDTO);
-                dbContext.SaveChanges();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Помилка видалення категорії{category.Name} з бази {_path}. \n\r {ex.Message}");
-            }
+            var categoryDTO = CategoryEntityDTO.ToDTO(category);
+            dbContext.Remove(categoryDTO);
+            dbContext.SaveChanges();
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Помилка видалення категорії{category.Name} з бази {_path}. \n\r {ex.Message}");
         }
     }
 
     public void RemoveNoteId(CategoryEntity category, string noteId)
     {
-        using (var dbContext = new CategoryesDbContext(_path))
+        using var dbContext = new CategoryesDbContext(_path);
+        try
         {
-            try
-            {
-                var categoryDTO = CategoryEntityDTO.ToDTO(category);
-                var updatedDTO = RemoveNoteIDFromCategory(categoryDTO, noteId);
-                dbContext.Update(updatedDTO);
-                dbContext.SaveChanges();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Помилка видалення з категорії{category.Name} індитифікатора {noteId} з бази даних{_path}. \n\r {ex.Message}");
-            }
+            var categoryDTO = CategoryEntityDTO.ToDTO(category);
+            var updatedDTO = RemoveNoteIDFromCategory(categoryDTO, noteId);
+            dbContext.Update(updatedDTO);
+            dbContext.SaveChanges();
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Помилка видалення з категорії{category.Name} індитифікатора {noteId} з бази даних{_path}. \n\r {ex.Message}");
         }
     }
     public List<CategoryEntity> GetAll()
     {
-        using (var dbContext = new CategoryesDbContext(_path))
+        using var dbContext = new CategoryesDbContext(_path);
+        try
         {
-            try
-            {
-                var categories = dbContext.GetAll();
-                return categories;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Помилка підключення до бази даних {_path}. \n\r {ex.Message}");
-            }
+            var categories = dbContext.GetAll();
+            return categories;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Помилка підключення до бази даних {_path}. \n\r {ex.Message}");
         }
     }
     private CategoryEntityDTO AddNoteIdToCategory(CategoryEntityDTO category, string noteId)
