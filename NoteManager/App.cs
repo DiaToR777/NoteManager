@@ -1,10 +1,10 @@
-﻿using ToDoListV2.Sevices.Category;
-using ToDoListV2.Sevices.Note;
-using ToDoListV2.Views;
+﻿using ToDoListManager.Sevices.Category;
+using ToDoListManager.Sevices.Note;
+using ToDoListManager.Views;
 
-namespace ToDoListV2
+namespace ToDoListManager
 {
-     internal class App : IDisposable
+    internal class App : IDisposable
      {
           private CategoryManager _categoryManager;
           private NoteManager _noteManager;

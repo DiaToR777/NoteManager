@@ -1,7 +1,7 @@
-﻿using ToDoListV2.Models.CategoryModels;
-using ToDoListV2.Sevices.Category;
+﻿using ToDoListManager.Sevices.Category;
+using ToDoListManager.Models.CategoryModels;
 
-namespace ToDoListV2.Views;
+namespace ToDoListManager.Views;
 
 internal class CategoryView : ViewBase
 {

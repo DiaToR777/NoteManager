@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace ToDoListV2.Models.NoteModels;
+namespace ToDoListManager.Models.NoteModels;
 
 public class NotesDbContext : DbContext
 {

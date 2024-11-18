@@ -1,6 +1,6 @@
 ﻿using Microsoft.Data.Sqlite;
 
-namespace ToDoListV2.FileManagement;
+namespace ToDoListManager.Sevices.FileManagement;
 
 public class DbFileManager
 {
@@ -47,7 +47,8 @@ public class DbFileManager
         {
             DbFileManager manager = new();
             manager.CreateDatabase(desktopPath);
-        }return desktopPath;
+        }
+        return desktopPath;
     }
 
 }

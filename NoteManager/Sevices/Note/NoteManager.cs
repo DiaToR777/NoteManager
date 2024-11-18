@@ -1,8 +1,8 @@
-﻿using ToDoListV2.Models.CategoryModels;
-using ToDoListV2.FileManagement;
-using ToDoListV2.Models.NoteModels;
+﻿using ToDoListManager.Models.CategoryModels;
+using ToDoListManager.Models.NoteModels;
+using ToDoListManager.Sevices.FileManagement;
 
-namespace ToDoListV2.Sevices.Note;
+namespace ToDoListManager.Sevices.Note;
 
 public class NoteManager
 {

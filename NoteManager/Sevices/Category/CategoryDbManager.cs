@@ -1,6 +1,6 @@
-﻿using ToDoListV2.Models.CategoryModels;
+﻿using ToDoListManager.Models.CategoryModels;
 
-namespace ToDoListV2.Sevices.Category;
+namespace ToDoListManager.Sevices.Category;
 
 public class CategoryDbManager
 {

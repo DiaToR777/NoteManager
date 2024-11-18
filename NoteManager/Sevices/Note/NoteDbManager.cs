@@ -1,6 +1,6 @@
-﻿using ToDoListV2.Models.NoteModels;
+﻿using ToDoListManager.Models.NoteModels;
 
-namespace ToDoListV2.Sevices.Note;
+namespace ToDoListManager.Sevices.Note;
 
 
 public class NoteDbManager

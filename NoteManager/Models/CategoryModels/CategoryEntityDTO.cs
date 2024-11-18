@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace ToDoListV2.Models.CategoryModels;
+namespace ToDoListManager.Models.CategoryModels;
 
 public class CategoryEntityDTO
 {

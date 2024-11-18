@@ -1,4 +1,4 @@
-﻿namespace ToDoListV2.Views;
+﻿namespace ToDoListManager.Views;
 
 internal class ViewBase
 {

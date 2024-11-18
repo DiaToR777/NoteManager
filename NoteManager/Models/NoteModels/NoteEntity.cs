@@ -1,4 +1,4 @@
-﻿namespace ToDoListV2.Models.NoteModels;
+﻿namespace ToDoListManager.Models.NoteModels;
 
 public class NoteEntity
 {

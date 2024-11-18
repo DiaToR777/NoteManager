@@ -1,8 +1,9 @@
-﻿using ToDoListV2.FileManagement;
-using ToDoListV2.Models.CategoryModels;
-using ToDoListV2.Models.NoteModels;
+﻿using ToDoListManager.Sevices.FileManagement;
+using ToDoListManager.Models.CategoryModels;
+using ToDoListManager.Models.NoteModels;
+using ToDoListManager.Sevices.Category;
 
-namespace ToDoListV2.Sevices.Category;
+namespace ToDoListManager.Sevices.Category;
 
 public class CategoryManager
 {
@@ -113,7 +114,7 @@ public class CategoryManager
     {
         using (var notesContext = new NotesDbContext(_path))
         {
-            List<NoteEntity>  notes = new();
+            List<NoteEntity> notes = new();
 
             var guids = _currentCategory!.NoteIds;
 

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace ToDoListV2.Models.NoteModels;
+namespace ToDoListManager.Models.NoteModels;
 
 public class NoteEntityDTO
 {

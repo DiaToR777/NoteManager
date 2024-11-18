@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace ToDoListV2.Models.CategoryModels;
+namespace ToDoListManager.Models.CategoryModels;
 
 public class CategoryesDbContext : DbContext
 {
