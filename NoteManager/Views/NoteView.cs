@@ -94,6 +94,7 @@ namespace ToDoListV2.Views
                         break;
                 }
             }
+
         }
 
         private void WriteNotesToDisplay(List<NoteEntity> notes, int currentPage, int pageSize = 5)
