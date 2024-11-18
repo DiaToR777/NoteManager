@@ -30,9 +30,4 @@ internal class ViewBase
           if (toLover) return input.ToLower();
           else return input;
      }
-     private void ClearScreen()
-     {
-          Console.Clear();
-          Console.WriteLine("Натисніть будь-яку клавішу");
-     }
 }
