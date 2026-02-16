@@ -1,11 +1,10 @@
-﻿using ToDoListManager.Sevices.Category;
-using ToDoListManager.Models.CategoryModels;
+﻿using ToDoListManager.Models.CategoryModels;
 
 namespace ToDoListManager.Views;
 
 internal class CategoryView : ViewBase
 {
-     public CategoryManager _manager { get; }
+     private CategoryManager _manager { get; }
      private NoteView _noteView { get; }
 
      public CategoryView(CategoryManager manager, NoteView noteView)
@@ -17,7 +16,7 @@ internal class CategoryView : ViewBase
      public void Main()
      {
           Console.Clear();
-          if (ChackCategoryesExist(out List<CategoryEntity>? categories) && categories != null)
+          if (CheckCategoriesExists(out List<CategoryEntity>? categories) && categories != null)
                HandleCategoryInput(categories);
           else
           {
@@ -26,7 +25,7 @@ internal class CategoryView : ViewBase
           }
      }
 
-     public void CreateCategory()
+     private void CreateCategory()
      {
           string categoryName = GetValidInput(message: "Створення категорії | Введіть назву категорії:\n");
 
@@ -39,7 +38,7 @@ internal class CategoryView : ViewBase
                _manager.Add(categoryName);
      }
 
-     public void HandleCategoryInput(List<CategoryEntity> categories)
+     private void HandleCategoryInput(List<CategoryEntity> categories)
      {
           Console.WriteLine("\na) додати нову категорію чи обрати за Id\n");
           ViewAllCategoryes(categories);
@@ -52,7 +51,7 @@ internal class CategoryView : ViewBase
                var categoryId = IsValidNumber(command);
                if (categoryId != 0)
                {
-                    var category = _manager.GetCategoryEntityByID(categoryId);
+                    var category = _manager.GetCategoryByIndex(categoryId);
                     if (category != null)
                     {
                          _manager.ChangeCurrentCategory(category);
@@ -77,7 +76,7 @@ internal class CategoryView : ViewBase
      {
           if (!IsCategoryHaveNotes())
           {
-               Console.WriteLine($"Категорія \"{_manager._currentCategory!.Name}\" не містить нотаток ");
+               Console.WriteLine($"Категорія \"{_manager.CurrentCategory!.Name}\" не містить нотаток ");
                return GetValidInput(true, "\nc) додати нотатку до категорії\nd) видалити категорію\nb) повернутись в головне меню\n");
           }
           else
@@ -94,48 +93,50 @@ internal class CategoryView : ViewBase
 
      private void ProcessCommand(string command)
      {
-          // Спочатку перевіряємо, чи введена команда є числом (номер нотатки)
           if (IsCategoryHaveNotes() && int.TryParse(command, out int trueNoteNumber))
           {
-               _noteView.ProcessNoteCommand(trueNoteNumber, _manager._currentCategory!);
+               _noteView.ProcessNoteCommand(trueNoteNumber, _manager.CurrentCategory!);
                return;
           }
           else
                ExecuteCategoryCommand(command);
      }
-     private void ExecuteCategoryCommand(string command)
-     {
-          switch (command)
-          {
-               case "c":
-               case "с":
-                    _noteView.CreateNote();
-                    break;
-               case "d":
-               case "в":
-                    DeleteCategory();
-                    break;
-               case "b":
-               case "и":
-                    break;
-               default:
-                    Console.WriteLine("Ви ввели не правильну команду!");
-                    break;
-          }
-     }
-     private bool ChackCategoryesExist(out List<CategoryEntity>? categories)
-     {
-          categories = _manager.GetAllCategories();
-          return categories != null ? true : false;
-     }
+    private void ExecuteCategoryCommand(string command)
+    {
+        switch (command.ToLower())
+        {
+            case "c":
+            case "с":
+                _noteView.CreateNote(_manager.CurrentCategory!.Name, _manager.CurrentCategory);
+                break;
+            case "d":
+            case "в":
+                DeleteCategory();
+                break;
+            case "b":
+            case "и":
+                break;
+            default:
+                Console.WriteLine("Невідома команда!");
+                Console.ReadKey();
+                break;
+        }
+    }
+    private bool CheckCategoriesExists(out List<CategoryEntity>? categories)
+    {
+          categories = _manager.Categories;
+
+        return categories != null && categories.Any();
+    }
 
      private void DeleteCategory() => _manager.Remove();
 
-     public void ViewAllCategoryes(List<CategoryEntity> categories)
+     private static void ViewAllCategoryes(List<CategoryEntity> categories)
      {
           int index = 1;
           foreach (var category in categories!)
                Console.WriteLine($"{index++}. {category.Name}");
      }
-     private bool IsCategoryHaveNotes() => _manager._currentCategory?.NoteIds.Count != 0;
+    private bool IsCategoryHaveNotes()
+            => _manager.CurrentCategory?.Notes != null && _manager.CurrentCategory.Notes.Any();
 }

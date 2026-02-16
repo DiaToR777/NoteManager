@@ -2,7 +2,7 @@
 
 internal class ViewBase
 {
-     protected int IsValidNumber(string command)
+     protected static int IsValidNumber(string command)
      {
           var res = int.TryParse(command, out int trueNumber);
           if (res)
@@ -10,7 +10,7 @@ internal class ViewBase
           else
                return 0;
      }
-     protected string GetValidInput(bool toLover = false, string? message = null)
+     protected static string GetValidInput(bool toLover = false, string? message = null)
      {
         if (message != null)
             Console.WriteLine(message);
@@ -25,7 +25,7 @@ internal class ViewBase
             else Console.WriteLine("Помилка: введено порожній рядок. Рядок має містити хоча б 1 символ! Спробуйте ще раз.") ;
           }
      }
-     private string InputProcess(string input, bool toLover)
+     private static string InputProcess(string input, bool toLover)
      {
           if (toLover) return input.ToLower();
           else return input;

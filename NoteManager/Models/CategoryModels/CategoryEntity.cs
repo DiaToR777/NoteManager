@@ -1,13 +1,19 @@
-﻿namespace ToDoListManager.Models.CategoryModels;
+﻿using System.ComponentModel.DataAnnotations;
+using ToDoListManager.Models.NoteModels;
+
+namespace ToDoListManager.Models.CategoryModels;
 
 public class CategoryEntity
 {
-    public string Name { get; set; }
-    public List<Guid> NoteIds { get; set; }
-    public CategoryEntity(string name, List<Guid> noteIds)
+    public CategoryEntity(string name)
     {
-        NoteIds = new List<Guid>();
         Name = name;
-        NoteIds = noteIds;
     }
-}
+    public CategoryEntity() { }
+
+    [Key]
+    public string Name { get; set; }
+    public List<NoteEntity> Notes { get; set; } = new();
+    public string CategoryName { get; }
+} 
+

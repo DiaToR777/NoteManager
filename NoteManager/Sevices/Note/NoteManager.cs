@@ -1,4 +1,5 @@
-﻿using ToDoListManager.Models.CategoryModels;
+﻿using System.Xml.Linq;
+using ToDoListManager.Models.CategoryModels;
 using ToDoListManager.Models.NoteModels;
 using ToDoListManager.Sevices.FileManagement;
 
@@ -6,98 +7,67 @@ namespace ToDoListManager.Sevices.Note;
 
 public class NoteManager
 {
-    public List<NoteEntity> Notes { get; set; }
-    private Action<Guid> _add_ID_ToCategory { get; }
-    private Action<Guid> _remove_ID_FromCategory { get; }
+    private readonly NoteDbManager _noteDbManager;
     private NoteEntity? _currentNote;
+    public List<NoteEntity> Notes { get; private set; }
 
-    private NoteDbManager _NoteDbManager;
-
-    DbFileManager fileManager = new();
-
-    string _path;
-
-    public NoteManager(Action<Guid> add_ID_ToCategory, Action<Guid> remove_ID_FromCategory)
+    public NoteManager()
     {
-        _path = fileManager.CheckDatabaseCreation();
-        _NoteDbManager = new(_path);
-        Notes = _NoteDbManager.GetAll();
-        _add_ID_ToCategory = add_ID_ToCategory;
-        _remove_ID_FromCategory = remove_ID_FromCategory;
+        var fileManager = new DbFileManager();
+        string path = fileManager.CheckDatabaseCreation();
+        _noteDbManager = new NoteDbManager(path);
+
+        Notes = _noteDbManager.GetAll() ?? new List<NoteEntity>();
     }
 
-    public void ChangeCurrentNote(NoteEntity note)
+    public void ChangeCurrentNote(NoteEntity note) => _currentNote = note;
+
+    public void Add(string title, string content, string categoryName, CategoryEntity currentCategory)
     {
-        if (note is not null)
-            _currentNote = note;
-    }
+        var note = new NoteEntity(title, content)
+        {
+            CategoryName = categoryName
+        };
 
-    public void Add(string noteName, string noteContent)
-    {
-        Guid noteId = Guid.NewGuid();
-
-        NoteEntity note = new(noteId, noteName, noteContent, DateTime.Now);
-
-        _NoteDbManager.Add(note);
+        _noteDbManager.Add(note);
         Notes.Add(note);
-        _add_ID_ToCategory.Invoke(noteId);
-    }
 
-    public void RemoveNotes(CategoryEntity categoty)
-    {
-        var noteIds = categoty.NoteIds;
-        if (noteIds.Count == 0)
-            return;
-
-        _NoteDbManager.RemoveByIds(noteIds);
-
-        Update();
-    }
-
-    public bool IsNewNote(string title)
-    {
-        if (Notes is null)
-            return false;
-        return !Notes.Any(note => note.Title == title);
-    }
-
-    public void Remove()
-    {
-        _NoteDbManager.Remove(_currentNote!);
-        Notes.Remove(_currentNote!);
-
-        _remove_ID_FromCategory.Invoke(_currentNote!.NoteId);
-    }
-
-    public void Update()
-    {
-        var newNotesList = _NoteDbManager.GetAll();
-        if (!Notes.SequenceEqual(newNotesList))
+        if (currentCategory != null && currentCategory.Name == categoryName)
         {
-            Notes = newNotesList;
+            currentCategory.Notes.Add(note);
         }
     }
 
-    public NoteEntity? GetNoteEntityByID(CategoryEntity category, int noteID)
+    public void Remove(CategoryEntity category)
     {
-        // Фільтруємо нотатки, що належать до вказаної категорії
-        var notesInCategory = Notes.Where(note => category.NoteIds.Contains(note.NoteId)).ToList();
+        if (_currentNote == null) return;
 
-        // Перевіряємо, чи номер нотатки в межах списку нотаток цієї категорії
-        if (noteID >= 1 && noteID <= notesInCategory.Count)
-        {
-            return notesInCategory.ElementAt(noteID - 1); // Повертаємо нотатку за індексом
-        }
-        else
-        {
-            Console.WriteLine("Помилка: Невірний номер нотатки.");
-            return null;
-        }
+        _noteDbManager.Remove(_currentNote);
+        Notes.Remove(_currentNote);
+        category.Notes.Remove(_currentNote); 
+        _currentNote = null;
     }
 
     public void Edit(string newContent)
     {
-        _NoteDbManager.Edit(_currentNote!, newContent);
-        _currentNote!.Content = newContent;
+        if (_currentNote == null) return;
+
+        _noteDbManager.Edit(_currentNote, newContent);
+    }
+
+    public bool IsNewNote(string title)
+        => !Notes.Any(n => n.Title.Equals(title, StringComparison.OrdinalIgnoreCase));
+
+    public NoteEntity? GetNoteFromCategory(CategoryEntity category, int index)
+    {
+        var notesInCategory = category.Notes;
+
+        if (index > 0 && index <= notesInCategory.Count)
+        {
+            return notesInCategory[index - 1];
+        }
+
+        Console.WriteLine("Помилка: Невірний номер нотатки.");
+        return null;
     }
 }

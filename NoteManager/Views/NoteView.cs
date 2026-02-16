@@ -4,30 +4,30 @@ using ToDoListManager.Sevices.Note;
 
 namespace ToDoListManager.Views
 {
-     internal class NoteView : ViewBase
-     {
-          public NoteManager Manager { get; }
-          public NoteView(NoteManager manager)
-          {
-               Manager = manager;
-          }
+    internal class NoteView : ViewBase
+    {
+        public NoteManager Manager { get; }
+        public NoteView(NoteManager manager)
+        {
+            Manager = manager;
+        }
 
-          public void ProcessNoteCommand(int noteId, CategoryEntity category)
-          {
-               var note = Manager.GetNoteEntityByID(category, noteId);
-               if (note != null)
-               {
-                    Manager.ChangeCurrentNote(note);
-                    Console.WriteLine($"\n{note.ToString(true)}\n");
+        public void ProcessNoteCommand(int noteId, CategoryEntity category)
+        {
+            var note = Manager.GetNoteFromCategory(category, noteId);
+            if (note != null)
+            {
+                Manager.ChangeCurrentNote(note);
+                Console.WriteLine($"\n{note.ToString(true)}\n");
 
-                    Console.Write("d) Видалити нотатку е) редагувати нотатку b) повернутись в головне меню\n");
+                Console.Write("d) Видалити нотатку е) редагувати нотатку b) повернутись в головне меню\n");
 
                 string commandWithNote = GetValidInput(true);
                 switch (commandWithNote)
                 {
                     case "d":
                     case "в":
-                        Manager.Remove();
+                        Manager.Remove(category);
                         break;
                     case "e":
                     case "у":
@@ -43,83 +43,86 @@ namespace ToDoListManager.Views
             }
         }
 
-          private void EditNoteMain()
-          {
-               string noteContent = GetValidInput(message: "Редагування нотатки \nВведіть новий контент нотатки:");
+        private void EditNoteMain()
+        {
+            string noteContent = GetValidInput(message: "Редагування нотатки \nВведіть новий контент нотатки:");
 
-               Manager.Edit(noteContent);
-          }
+            Manager.Edit(noteContent);
+        }
 
-          public void CreateNote()
-          {
-               string noteTitle = GetValidInput(message: "Створення нотатки \nВведіть назву нотатки:"); //отримуємо корректну назву нотатки
+        public void CreateNote(string currentCategoryName, CategoryEntity currentCategory)
+        {
+            string noteTitle = GetValidInput(message: "Створення нотатки\nВведіть назву:");
 
-               if (!Manager.IsNewNote(noteTitle))
-               {
-                    Console.WriteLine("Нотатка з такою назвою вже існує");
-                    Console.ReadKey();
-                    return;
-               }
-               string noteContent = GetValidInput(message: "Введіть вміст нотатки: \n"); //заповняємо вміст
+            if (!Manager.IsNewNote(noteTitle))
+            {
+                Console.WriteLine("Нотатка з такою назвою вже існує!");
+                Console.ReadKey();
+                return;
+            }
 
-               Manager.Add(noteTitle, noteContent);
-          }
+            string noteContent = GetValidInput(message: "Введіть вміст нотатки:\n");
 
-          public void DisplayNotes(List<NoteEntity> notes, int pageSize = 5)
-          {
-               int currentPage = 1;
-               int totalPages = (int)Math.Ceiling((double)notes.Count / pageSize);
-               bool isRunning = true;
+            Manager.Add(noteTitle, noteContent, currentCategoryName, currentCategory);
 
-               while (isRunning)
-               {
-                    Console.Clear();
+            Console.WriteLine("Нотатку успішно створено!");
+            Console.ReadKey();
+        }
+        public void DisplayNotes(List<NoteEntity> notes, int pageSize = 5)
+        {
+            int currentPage = 1;
+            int totalPages = (int)Math.Ceiling((double)notes.Count / pageSize);
+            bool isRunning = true;
 
-                    WriteNotesToDisplay(notes, currentPage, pageSize);
+            while (isRunning)
+            {
+                Console.Clear();
 
-                    Console.WriteLine($"\nСторінка {currentPage}/{totalPages}");
-                    Console.WriteLine("\n← попередня сторінка | → наступна сторінка | Натисніть 'b' для завершення перегляду.\n");
+                WriteNotesToDisplay(notes, currentPage, pageSize);
 
-                    var input = Console.ReadKey().Key;
-                    switch (input)
-                    {
-                         case ConsoleKey.LeftArrow:
-                              currentPage = currentPage > 1 ? currentPage - 1 : totalPages;
-                              break;
-                         case ConsoleKey.RightArrow:
-                              currentPage = currentPage < totalPages ? currentPage + 1 : 1;
-                              break;
-                         case ConsoleKey.B:
-                              isRunning = false;
-                              break;
-                    }
-               }
-          }
+                Console.WriteLine($"\nСторінка {currentPage}/{totalPages}");
+                Console.WriteLine("\n← попередня сторінка | → наступна сторінка | Натисніть 'b' для завершення перегляду.\n");
 
-          private void WriteNotesToDisplay(List<NoteEntity> notes, int currentPage, int pageSize = 5)
-          {
-               var notesToDisplay = NotesForCurrentPage(notes, currentPage, pageSize);
-               for (int i = 0; i < notesToDisplay.Count; i++)
-               {
-                    var note = notesToDisplay[i];
-                    Console.WriteLine($"Нотатка номер {((currentPage - 1) * pageSize) + (i + 1)}\n{note.ToString(false)}\n");
-               }
-          }
+                var input = Console.ReadKey().Key;
+                switch (input)
+                {
+                    case ConsoleKey.LeftArrow:
+                        currentPage = currentPage > 1 ? currentPage - 1 : totalPages;
+                        break;
+                    case ConsoleKey.RightArrow:
+                        currentPage = currentPage < totalPages ? currentPage + 1 : 1;
+                        break;
+                    case ConsoleKey.B:
+                        isRunning = false;
+                        break;
+                }
+            }
+        }
 
-          public void DisplayOnePageNotes(List<NoteEntity> notes)
-          {
-               for (int i = 0; i < notes.Count; i++)
-               {
-                    var note = notes[i];
-                    Console.WriteLine($"Нотатка номер {i + 1}\n{note.ToString(false)}\n");
-               }
-          }
+        private static void WriteNotesToDisplay(List<NoteEntity> notes, int currentPage, int pageSize = 5)
+        {
+            var notesToDisplay = NotesForCurrentPage(notes, currentPage, pageSize);
+            for (int i = 0; i < notesToDisplay.Count; i++)
+            {
+                var note = notesToDisplay[i];
+                Console.WriteLine($"Нотатка номер {((currentPage - 1) * pageSize) + (i + 1)}\n{note.ToString(false)}\n");
+            }
+        }
 
-          private static List<NoteEntity> NotesForCurrentPage(List<NoteEntity> notes, int currentPage, int pageSize)
-          {
-               var notesForPage = notes.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
-               return notesForPage;
-          }
-     }
+        public void DisplayOnePageNotes(List<NoteEntity> notes)
+        {
+            for (int i = 0; i < notes.Count; i++)
+            {
+                var note = notes[i];
+                Console.WriteLine($"Нотатка номер {i + 1}\n{note.ToString(false)}\n");
+            }
+        }
+
+        private static List<NoteEntity> NotesForCurrentPage(List<NoteEntity> notes, int currentPage, int pageSize)
+        {
+            var notesForPage = notes.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
+            return notesForPage;
+        }
+    }
 }
 

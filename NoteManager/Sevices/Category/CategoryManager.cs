@@ -1,133 +1,57 @@
-﻿using ToDoListManager.Sevices.FileManagement;
-using ToDoListManager.Models.CategoryModels;
+﻿using ToDoListManager.Models.CategoryModels;
 using ToDoListManager.Models.NoteModels;
-using ToDoListManager.Sevices.Category;
-
-namespace ToDoListManager.Sevices.Category;
+using ToDoListManager.Sevices.FileManagement;
 
 public class CategoryManager
 {
-    DbFileManager fileManager = new();
-    public List<CategoryEntity> Categories { get; set; }
-    public CategoryEntity? _currentCategory;
-    private readonly CategoryDbManager _CategoryDbManager;
-    string _path;
+    private readonly CategoryDbManager _categoryDbManager;
+    private readonly string _path;
 
-
-    public Action<CategoryEntity>? RemoveNotes;
+    public List<CategoryEntity> Categories { get; private set; }
+    public CategoryEntity? CurrentCategory { get; private set; }
 
     public CategoryManager()
     {
+        var fileManager = new DbFileManager();
         _path = fileManager.CheckDatabaseCreation();
-        _CategoryDbManager = new CategoryDbManager(_path);
-        Categories = _CategoryDbManager.GetAll();
+        _categoryDbManager = new CategoryDbManager(_path);
 
+        Categories = _categoryDbManager.GetAll();
     }
 
     public void ChangeCurrentCategory(CategoryEntity category)
     {
-        if (category != null)
-            _currentCategory = category;
+        CurrentCategory = category;
     }
 
     public void Add(string categoryName)
     {
-        CategoryEntity category = new(categoryName, new List<Guid>());
-
-        _CategoryDbManager.Add(category);
+        var category = new CategoryEntity(categoryName);
+        _categoryDbManager.Add(category);
         Categories.Add(category);
-    }
-
-    public void AddNoteId(Guid noteId)
-    {
-        _CategoryDbManager.AddNoteId(noteId, _currentCategory!);
-        _currentCategory!.NoteIds.Add(noteId);
-    }
-
-    public void Update()
-    {
-        var newNotesList = _CategoryDbManager.GetAll();
-        if (!Categories.SequenceEqual(newNotesList))
-        {
-            Categories = newNotesList;
-        }
     }
 
     public void Remove()
     {
-        _CategoryDbManager.Remove(_currentCategory!);
-        Categories.Remove(_currentCategory!);
-        RemoveNotes?.Invoke(_currentCategory!);
-    }
-    public void RemoveNoteId(Guid noteId)
-    {
-        _CategoryDbManager.RemoveNoteId(_currentCategory!, noteId.ToString());
-        _currentCategory!.NoteIds.Remove(noteId);
-        Update();
+        if (CurrentCategory == null) return;
 
-    }
-
-    public CategoryEntity? GetCategoryEntityByID(int categoryID)
-    {
-        if (categoryID >= 1 && categoryID <= Categories.Count)
-        {
-            return Categories.ElementAt(categoryID - 1);
-        }
-        else
-        {
-            Console.WriteLine("Помилка: Невірний номер категорії.");
-            return null;
-        }
-    }
-
-    public bool IsNewCategory(string categoryName)
-    {
-        if (Categories is null)
-            return false;
-        return !Categories.Any(category => category.Name == categoryName);
-    }
-
-    public bool IsCategoriesExist()
-    {
-        if (Categories.Count != 0)
-        {
-            return true;
-        }
-        return false;
-    }
-    public List<CategoryEntity>? GetAllCategories()
-    {
-        List<CategoryEntity> categories = new();
-
-        if (Categories.Count != 0)
-        {
-            foreach (var category in Categories)
-            {
-                categories.Add(category);
-            }
-            return categories;
-        }
-        return null;
+        _categoryDbManager.Remove(CurrentCategory);
+        Categories.Remove(CurrentCategory);
+        CurrentCategory = null;
     }
 
     public List<NoteEntity> GetNotesInCategory()
     {
-        using (var notesContext = new NotesDbContext(_path))
-        {
-            List<NoteEntity> notes = new();
+        return CurrentCategory?.Notes ?? new List<NoteEntity>();
+    }
 
-            var guids = _currentCategory!.NoteIds;
+    public bool IsNewCategory(string categoryName)
+        => !Categories.Any(c => c.Name.Equals(categoryName, StringComparison.OrdinalIgnoreCase));
 
-            var notesDTO = notesContext.Notes.AsEnumerable()
-                             .Where(note => guids.Contains(Guid.Parse(note.NoteId)))
-                             .ToList();
+    public bool IsCategoriesExist() => Categories.Any();
 
-            foreach (var noteDTO in notesDTO)
-            {
-                var note = noteDTO.ToEntity();
-                notes.Add(note);
-            }
-            return notes;
-        }
+    public CategoryEntity? GetCategoryByIndex(int index)
+    {
+        return (index > 0 && index <= Categories.Count) ? Categories[index - 1] : null;
     }
 }

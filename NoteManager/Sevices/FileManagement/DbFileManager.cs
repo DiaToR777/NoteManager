@@ -1,54 +1,19 @@
-﻿using Microsoft.Data.Sqlite;
+﻿using ToDoListManager.Date;
 
-namespace ToDoListManager.Sevices.FileManagement;
-
-public class DbFileManager
+namespace ToDoListManager.Sevices.FileManagement
 {
-    public void CreateDatabase(string _pathToDb)
+    public class DbFileManager
     {
-        using (var connection = new SqliteConnection($"Data Source={_pathToDb}"))
+        public string CheckDatabaseCreation()
         {
-            connection.Open();
+            string desktopPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "Note.sqlite");
 
-            using (SqliteCommand command = new())
+            using (var dbContext = new AppDbContext(desktopPath))
             {
-                command.Connection = connection;
-
-                command.CommandText = @"
-                CREATE TABLE Notes (
-                    NoteId TEXT ,
-                    Title TEXT NOT NULL,
-                    Content TEXT NOT NULL,
-                    DateCreate TEXT NOT NULL
-                );";
-
-                command.ExecuteNonQuery();
-
-                command.CommandText = @"
-                CREATE TABLE Categories (
-                    Name TEXT NOT NULL,
-                    NoteIds TEXT
-                );";
-
-                command.ExecuteNonQuery();
-                command.Dispose();
-
-                // Закриття підключення
-                connection.Close();
+                dbContext.Database.EnsureCreated();
             }
+
+            return desktopPath;
         }
     }
-    public string CheckDatabaseCreation()
-    {
-        string userDesctop = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-        string desktopPath = Path.Combine(userDesctop, "Note.sqlite");
-
-        if (!File.Exists(desktopPath))
-        {
-            DbFileManager manager = new();
-            manager.CreateDatabase(desktopPath);
-        }
-        return desktopPath;
-    }
-
 }
